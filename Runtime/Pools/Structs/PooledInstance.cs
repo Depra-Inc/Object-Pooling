@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 using UnityEngine;
 

@@ -1,8 +1,8 @@
 {
-    "name": "Depra.Pooling.Tests.Editor",
+    "name": "Depra.ObjectPooling.Tests.Editor",
     "rootNamespace": "",
     "references": [
-        "Depra.Pooling",
+        "Depra.ObjectPooling",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

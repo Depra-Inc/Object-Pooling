@@ -1,17 +1,17 @@
 using System;
 using System.Linq;
 using Depra.ObjectPooling.Runtime.Buffers.Impl;
+using Depra.ObjectPooling.Runtime.Exceptions;
 using Depra.ObjectPooling.Runtime.Extensions;
+using Depra.ObjectPooling.Runtime.Factories.Impl;
 using Depra.ObjectPooling.Runtime.Pools.Impl;
-using Depra.ObjectPooling.Runtime.Processors.Impl;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Depra.ObjectPooling.Tests.Editor
 {
     public class ObjectPoolTests
     {
-        private const string Key = "TestPool";
+        private const string Key = "TestObjectPool";
         private const int DefaultCapacity = 10;
 
         private ObjectPool<TestPooled> _objectPool;
@@ -20,10 +20,11 @@ namespace Depra.ObjectPooling.Tests.Editor
         public void SetUp()
         {
             var buffer = new InstanceBuffer<TestPooled>(DefaultCapacity);
-            var instanceProcessor = new CustomInstanceProcessor<TestPooled>(CreatePooledObject,
+            var instanceProcessor = new CustomPooledObjectFactory<TestPooled>(CreatePooledObject,
                 null, null, null);
+            var exceptionHandlingRule = new ExceptionThrowingRule();
 
-            _objectPool = new ObjectPool<TestPooled>(Key, buffer, instanceProcessor, DefaultCapacity);
+            _objectPool = new ObjectPool<TestPooled>(Key, buffer, instanceProcessor, exceptionHandlingRule);
         }
 
         [TearDown]
@@ -60,7 +61,7 @@ namespace Depra.ObjectPooling.Tests.Editor
             var collection = CreateCollectionOfPooledObjects(count);
             var lastObject = collection.Last();
 
-            _objectPool.AddRange(collection);
+            _objectPool.AddFreeRange(collection);
             _objectPool.RequestObject();
             _objectPool.RequestObject();
             _objectPool.FreeObject(lastObject);
@@ -83,11 +84,11 @@ namespace Depra.ObjectPooling.Tests.Editor
         }
 
         [Test]
-        public void Add_Objects_Range()
+        public void Add_Free_Objects_Range()
         {
             const int count = 20;
             var collection = CreateCollectionOfPooledObjects(count);
-            _objectPool.AddRange(collection);
+            _objectPool.AddFreeRange(collection);
 
             Assert.AreEqual(0, _objectPool.CountActive);
             Assert.AreEqual(count, _objectPool.CountAll);
@@ -99,7 +100,7 @@ namespace Depra.ObjectPooling.Tests.Editor
         public void Request_Objects_Range()
         {
             const int count = 30;
-            _objectPool.RequestMany(count);
+            _objectPool.RequestRange(count);
 
             Assert.AreEqual(count, _objectPool.CountAll);
             Assert.AreEqual(0, _objectPool.CountInactive);
@@ -112,9 +113,9 @@ namespace Depra.ObjectPooling.Tests.Editor
             const int count = 10;
 
             var collection = CreateCollectionOfPooledObjects(count);
-            _objectPool.AddRange(collection);
+            _objectPool.AddFreeRange(collection);
 
-            _ = _objectPool.RequestMany(count / 2);
+            _ = _objectPool.RequestRange(count / 2);
 
             var collectionForFree = collection.AsSpan()[..(count / 2)].ToArray();
             _objectPool.FreeRange(collectionForFree);

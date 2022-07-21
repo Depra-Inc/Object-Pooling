@@ -1,4 +1,5 @@
-﻿using Depra.ObjectPooling.Runtime.Pools.Interfaces;
+﻿using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 
 namespace Depra.ObjectPooling.Tests.Editor
 {
@@ -10,7 +11,7 @@ namespace Depra.ObjectPooling.Tests.Editor
         
         public bool Free { get;private set; }
         
-        public void OnRecycle()
+        public void OnPoolReuse()
         {
         }
 

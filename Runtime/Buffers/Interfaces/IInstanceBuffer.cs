@@ -3,25 +3,22 @@ using System.Collections.Generic;
 
 namespace Depra.ObjectPooling.Runtime.Buffers.Interfaces
 {
-    public interface IInstanceBuffer<TSource> : IDisposable
+    public interface IInstanceBuffer<T> : IDisposable
     {
         int FreeCount { get; }
         int UsedCount { get; }
-        
-        bool HasFree { get; }
-        bool HasInUse { get; }
-        
-        void AddFree(TSource obj);
 
-        TSource RemoveFree();
+        void AddFree(T value);
 
-        void AddInUse(TSource obj);
+        bool TryRemoveFree(out T free);
 
-        TSource RemoveInUse();
+        void AddInUse(T value);
 
-        IReadOnlyCollection<TSource> GetAllFree();
+        bool TryRemoveUsed(out T used);
 
-        IReadOnlyCollection<TSource> GetAllInUse();
+        IReadOnlyCollection<T> GetAllFree();
+
+        IReadOnlyCollection<T> GetAllInUse();
 
         void Clear();
     }

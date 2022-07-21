@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using Depra.ObjectPooling.Runtime.Processors.Abstract;
+using Depra.ObjectPooling.Runtime.Factories.Abstract;
 
-namespace Depra.ObjectPooling.Runtime.Processors.Impl
+namespace Depra.ObjectPooling.Runtime.Factories.Impl
 {
-    public class ClassInstanceProcessor<TClass> : InstanceProcessor<TClass> where TClass : class, new()
+    public class ClassPooledObjectFactory<TClass> : PooledObjectFactory<TClass> where TClass : class, new()
     {
+        private readonly object[] _constructorArgs;
         private readonly Dictionary<object, TClass> _instances;
 
-        public override TClass CreateInstance(object key)
+        public override TClass CreateObject(object key)
         {
             if (_instances.TryGetValue(key, out var instance) == false)
             {
-                instance = new TClass();
+                instance = CreateClass(_constructorArgs);
                 _instances.Add(key, instance);
             }
 
-            OnDisableInstance(key, instance);
+            OnDisableObject(key, instance);
 
             return instance;
         }
 
-        public override void DestroyInstance(object key, TClass instance)
+        public override void DestroyObject(object key, TClass instance)
         {
             DestroyClass(instance);
 
@@ -36,11 +37,21 @@ namespace Depra.ObjectPooling.Runtime.Processors.Impl
             }
         }
 
-        public ClassInstanceProcessor()
+        public ClassPooledObjectFactory(object[] constructorArgs)
         {
+            _constructorArgs = constructorArgs;
             _instances = new Dictionary<object, TClass>();
         }
 
+        private static TClass CreateClass(object[] constructorArgs)
+        {
+            var newClass = constructorArgs == null
+                ? Activator.CreateInstance<TClass>()
+                : (TClass)Activator.CreateInstance(typeof(TClass), constructorArgs);
+
+            return newClass;
+        }
+        
         private static void DestroyClass(TClass @class)
         {
             if (@class is IDisposable disposableInstance)

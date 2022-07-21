@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using JetBrains.Annotations;
 
 namespace Depra.ObjectPooling.Runtime.Pools.Interfaces
 {
@@ -15,6 +16,7 @@ namespace Depra.ObjectPooling.Runtime.Pools.Interfaces
         /// <summary>
         /// Releases an object back to the pool.
         /// </summary>
+        /// <param name="obj">Object to release.</param>
         void FreeObject(IPooled obj);
     }
 }

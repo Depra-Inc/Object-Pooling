@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
 

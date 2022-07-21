@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Depra.ObjectPooling.Runtime.Buffers.Interfaces;
-using Depra.ObjectPooling.Runtime.Pools.Interfaces;
+using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
 
 namespace Depra.ObjectPooling.Runtime.Buffers.Impl
@@ -15,9 +14,6 @@ namespace Depra.ObjectPooling.Runtime.Buffers.Impl
         public int FreeCount => _objectsFree.Count;
         public int UsedCount => _objectsInUse.Count;
 
-        public bool HasFree => _objectsFree.Count > 0;
-        public bool HasInUse => _objectsInUse.Count > 0;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void IInstanceBuffer<PooledInstance<TSource>>.AddFree(PooledInstance<TSource> instance)
         {
@@ -25,14 +21,16 @@ namespace Depra.ObjectPooling.Runtime.Buffers.Impl
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        PooledInstance<TSource> IInstanceBuffer<PooledInstance<TSource>>.RemoveFree()
+        bool IInstanceBuffer<PooledInstance<TSource>>.TryRemoveFree(out PooledInstance<TSource> instance)
         {
-            if (_objectsFree.Count == 0)
+            if (_objectsFree.Count > 0)
             {
-                throw new Exception("Collection of free instances is empty!");
+                instance = _objectsFree.Pop();
+                return true;
             }
-            
-            return _objectsFree.Pop();
+
+            instance = default;
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -42,14 +40,16 @@ namespace Depra.ObjectPooling.Runtime.Buffers.Impl
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PooledInstance<TSource> RemoveInUse()
+        bool IInstanceBuffer<PooledInstance<TSource>>.TryRemoveUsed(out PooledInstance<TSource> instance)
         {
-            if (_objectsInUse.Count == 0)
+            if (_objectsInUse.Count > 0)
             {
-                throw new Exception("Collection of free instances is empty!");
+                instance = _objectsInUse.Pop();
+                return true;
             }
 
-            return _objectsInUse.Pop();
+            instance = default;
+            return false;
         }
 
         public IReadOnlyCollection<PooledInstance<TSource>> GetAllFree() => _objectsFree;
@@ -65,7 +65,7 @@ namespace Depra.ObjectPooling.Runtime.Buffers.Impl
         public InstanceBuffer(int capacity)
         {
             _objectsFree = new Stack<PooledInstance<TSource>>(capacity);
-           _objectsInUse = new Stack<PooledInstance<TSource>>(capacity);
+            _objectsInUse = new Stack<PooledInstance<TSource>>(capacity);
         }
 
         public void Dispose() => Clear();
