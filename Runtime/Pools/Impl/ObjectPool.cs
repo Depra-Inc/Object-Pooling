@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using Depra.ObjectPooling.Runtime.Buffers.Interfaces;
-using Depra.ObjectPooling.Runtime.Exceptions;
-using Depra.ObjectPooling.Runtime.Factories.Abstract;
-using Depra.ObjectPooling.Runtime.Helpers;
+using Depra.ObjectPooling.Runtime.Configuration.Interfaces;
+using Depra.ObjectPooling.Runtime.Context.Interfaces;
+using Depra.ObjectPooling.Runtime.Factories.Instance.Interfaces;
 using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Abstract;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
@@ -12,115 +10,66 @@ namespace Depra.ObjectPooling.Runtime.Pools.Impl
 {
     public class ObjectPool<T> : PoolBase<T> where T : IPooled
     {
-        private readonly PooledObjectFactory<T> _objectFactory;
-        private readonly IInstanceBuffer<PooledInstance<T>> _buffer;
-        private readonly ExceptionHandlingRule _exceptionHandlingRule;
-
-        private bool _disposed;
-
-        public override int CountAll { get; protected set; }
-        public override int CountInactive => _buffer.FreeCount;
+        private readonly IPoolContext<T> _context;
+        private readonly IPooledInstanceFactory<T> _instanceFactory;
 
         public override T RequestObject()
         {
-            var obj = CountInactive > 0 ? ReuseObject() : IncrementPool();
-            OnObjectRequested(obj);
-
+            RequestObject(out var obj);
             return obj;
         }
 
-        public override void FreeObject(T obj)
+        public PooledInstance<T> RequestObject(out T obj)
         {
-            if (obj == null)
-            {
-                _exceptionHandlingRule.HandleException(new NullReferenceException());
-                return;
-            }
+            var instance = _instanceFactory.MakeActiveInstance(out var reuse);
+            obj = instance.Obj;
             
-            OnObjectFree(obj);
-            _objectFactory.OnDisableObject(Key, obj);
-
-            if (_buffer.TryRemoveUsed(out var instance))
+            if (reuse)
             {
-                instance.SetActive(false);
-                _buffer.AddFree(instance);
+                OnObjectReused(obj);
             }
             else
             {
-                _exceptionHandlingRule.HandleException(new NotEnoughFreeObjectsPoolError(Key, obj.GetType()));
+                OnObjectCreated(obj);
             }
+
+            OnObjectRequested(obj);
+            
+            return instance;
         }
 
-        public void Clear()
+        public override void ReleaseObject(T obj)
         {
-            var allInstancesInUse = _buffer.GetAllInUse();
-            foreach (var instance in allInstancesInUse)
+            if (obj == null)
             {
-                _objectFactory.DestroyObject(Key, instance.Obj);
+                throw new NullReferenceException();
             }
+            
+            var instance = _instanceFactory.MakePassiveInstance();
+            OnObjectReleased(instance.Obj);
+        }
 
-            _buffer.Clear();
+        public override void Clear()
+        {
+            _context.Clear(instance =>
+            {
+                instance.Obj.OnPoolSleep();
+                _instanceFactory.DestroyInstance(ref instance);
+            });
+            
             CountAll = 0;
         }
 
         public void AddFreeObject(T obj)
         {
-            var instance = obj.ToInstance(this);
-            _buffer.AddFree(instance);
-
+            var instance = _instanceFactory.MakePassiveInstance(obj);
             OnFreeObjectAdded(obj);
         }
 
-        public ObjectPool(object key, IInstanceBuffer<PooledInstance<T>> buffer, PooledObjectFactory<T> objectFactory,
-            ExceptionHandlingRule exceptionHandlingRule) : base(key)
+        public ObjectPool(object key, IPoolConfiguration<T> configuration) : base(key)
         {
-            _buffer = buffer;
-            _objectFactory = objectFactory;
-            _exceptionHandlingRule = exceptionHandlingRule;
-        }
-
-        protected T ReuseObject()
-        {
-            if (_buffer.TryRemoveFree(out var instance))
-            {
-                return UseInstance(instance);
-            }
-            
-            _exceptionHandlingRule.HandleException(new NullReferenceException());
-            return default;
-        }
-
-        protected T UseInstance(PooledInstance<T> instance)
-        {
-            _buffer.AddInUse(instance);
-            
-            instance.SetActive(true);
-            
-            var obj = instance.Obj;
-            _objectFactory.OnEnableObject(Key, obj);
-
-            return obj;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing == false || _disposed)
-            {
-                return;
-            }
-
-            Clear();
-            _disposed = true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private T IncrementPool()
-        {
-            var obj = _objectFactory.CreateObject(Key);
-            OnObjectCreated(obj);
-            UseInstance(obj.ToInstance(this));
-
-            return obj;
+            _context = configuration.GetContext(this);
+            _instanceFactory = configuration.GetFactory(_context);
         }
     }
 }

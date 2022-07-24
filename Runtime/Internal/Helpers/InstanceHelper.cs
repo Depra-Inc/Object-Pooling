@@ -3,7 +3,7 @@ using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
 
-namespace Depra.ObjectPooling.Runtime.Helpers
+namespace Depra.ObjectPooling.Runtime.Internal.Helpers
 {
     public static class InstanceHelper
     {

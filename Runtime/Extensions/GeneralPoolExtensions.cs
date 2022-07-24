@@ -9,7 +9,7 @@ namespace Depra.ObjectPooling.Runtime.Extensions
         public static void WarmUp<T>(this PoolBase<T> pool, int count) where T : IPooled
         {
             var objects = pool.RequestRange(count);
-            pool.FreeRange(objects);
+            pool.ReleaseRange(objects);
         }
 
         public static IEnumerable<T> RequestRange<T>(this PoolBase<T> pool, int count) where T : IPooled
@@ -28,11 +28,11 @@ namespace Depra.ObjectPooling.Runtime.Extensions
         /// </summary>
         /// <param name="pool"></param>
         /// <param name="collection"></param>
-        public static void FreeRange<T>(this PoolBase<T> pool, IEnumerable<T> collection) where T : IPooled
+        public static void ReleaseRange<T>(this PoolBase<T> pool, IEnumerable<T> collection) where T : IPooled
         {
             foreach (var item in collection)
             {
-                pool.FreeObject(item);
+                pool.ReleaseObject(item);
             }
         }
     }

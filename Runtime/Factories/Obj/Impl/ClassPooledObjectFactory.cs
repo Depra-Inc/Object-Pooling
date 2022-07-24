@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using Depra.ObjectPooling.Runtime.Factories.Abstract;
+using Depra.ObjectPooling.Runtime.Factories.Obj.Interfaces;
 
-namespace Depra.ObjectPooling.Runtime.Factories.Impl
+namespace Depra.ObjectPooling.Runtime.Factories.Obj.Impl
 {
-    public class ClassPooledObjectFactory<TClass> : PooledObjectFactory<TClass> where TClass : class, new()
+    public readonly struct ClassPooledObjectFactory<TClass> : IPooledObjectFactory<TClass> where TClass : class, new()
     {
         private readonly object[] _constructorArgs;
         private readonly Dictionary<object, TClass> _instances;
 
-        public override TClass CreateObject(object key)
+        public TClass CreateObject(object key)
         {
             if (_instances.TryGetValue(key, out var instance) == false)
             {
@@ -22,7 +22,7 @@ namespace Depra.ObjectPooling.Runtime.Factories.Impl
             return instance;
         }
 
-        public override void DestroyObject(object key, TClass instance)
+        public void DestroyObject(object key, TClass instance)
         {
             DestroyClass(instance);
 
@@ -30,11 +30,19 @@ namespace Depra.ObjectPooling.Runtime.Factories.Impl
             {
                 return;
             }
-            
+
             if (instance == actualInstance)
             {
                 _instances.Remove(key);
             }
+        }
+
+        public void OnEnableObject(object key, TClass instance)
+        {
+        }
+
+        public void OnDisableObject(object key, TClass instance)
+        {
         }
 
         public ClassPooledObjectFactory(object[] constructorArgs)
@@ -51,7 +59,7 @@ namespace Depra.ObjectPooling.Runtime.Factories.Impl
 
             return newClass;
         }
-        
+
         private static void DestroyClass(TClass @class)
         {
             if (@class is IDisposable disposableInstance)

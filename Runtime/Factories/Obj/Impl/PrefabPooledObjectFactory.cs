@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
-using Depra.ObjectPooling.Runtime.Factories.Abstract;
+using Depra.ObjectPooling.Runtime.Factories.Obj.Interfaces;
 using UnityEngine;
 
-namespace Depra.ObjectPooling.Runtime.Factories.Impl
+namespace Depra.ObjectPooling.Runtime.Factories.Obj.Impl
 {
-    public class PrefabPooledObjectFactory<T> : PooledObjectFactory<T> where T : MonoBehaviour
+    public class PrefabPooledObjectFactory<T> : IPooledObjectFactory<T> where T : MonoBehaviour
     {
         private readonly T _prefab;
         private readonly IDictionary<object, Transform> _containers;
 
-        public override T CreateObject(object key) =>
+        public T CreateObject(object key) =>
             CreateObject(key, Vector3.zero, Quaternion.identity, null);
 
-        public override void DestroyObject(object key, T instance)
+        public void DestroyObject(object key, T instance)
         {
             DestroyGameObject(instance);
 
@@ -30,7 +30,11 @@ namespace Depra.ObjectPooling.Runtime.Factories.Impl
             _containers.Remove(key);
         }
 
-        public override void OnDisableObject(object key, T instance)
+        public void OnEnableObject(object key, T instance)
+        {
+        }
+
+        public void OnDisableObject(object key, T instance)
         {
             if (_containers.TryGetValue(key, out var container))
             {

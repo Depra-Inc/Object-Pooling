@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Impl;
-using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 
 namespace Depra.ObjectPooling.Runtime.Extensions
 {

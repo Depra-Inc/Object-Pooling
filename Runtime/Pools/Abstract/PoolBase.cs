@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 using UnityEngine;
@@ -7,19 +8,23 @@ namespace Depra.ObjectPooling.Runtime.Pools.Abstract
 {
     public abstract class PoolBase<T> : IPool, IDisposable where T : IPooled
     {
+        private bool _disposed;
+        
         public object Key { get; }
 
         public Type BaseType { get; }
 
-        public abstract int CountInactive { get; }
+        public int CountInactive { get; private set; }
 
-        public abstract int CountAll { get; protected set; }
+        public int CountAll { get; protected set; }
 
         public int CountActive => CountAll - CountInactive;
 
         public abstract T RequestObject();
 
-        public abstract void FreeObject(T obj);
+        public abstract void ReleaseObject(T obj);
+
+        public abstract void Clear();
 
         IPooled IPool.RequestObject() => RequestObject();
 
@@ -31,17 +36,26 @@ namespace Depra.ObjectPooling.Runtime.Pools.Abstract
                 return;
             }
 
-            FreeObject(objAsT);
+            ReleaseObject(objAsT);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void OnObjectRequested(T obj)
         {
             obj.OnPoolGet();
         }
 
-        protected void OnObjectFree(T obj)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void OnObjectReleased(T obj)
         {
+            CountInactive++;
             obj.OnPoolSleep();
+        }
+
+        protected void OnObjectReused(T obj)
+        {
+            CountInactive--;
+            obj.OnPoolReuse();
         }
 
         protected void OnObjectCreated(T obj)
@@ -53,6 +67,8 @@ namespace Depra.ObjectPooling.Runtime.Pools.Abstract
         protected void OnFreeObjectAdded(T obj)
         {
             CountAll++;
+            CountInactive++;
+            
             obj.OnPoolSleep();
         }
 
@@ -65,7 +81,16 @@ namespace Depra.ObjectPooling.Runtime.Pools.Abstract
         ~PoolBase() => Dispose(false);
 
         public void Dispose() => Dispose(true);
+        
+        private void Dispose(bool disposing)
+        {
+            if (disposing == false || _disposed)
+            {
+                return;
+            }
 
-        protected abstract void Dispose(bool disposing);
+            Clear();
+            _disposed = true;
+        }
     }
 }

@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Linq;
-using Depra.ObjectPooling.Runtime.Buffers.Impl;
-using Depra.ObjectPooling.Runtime.Exceptions;
+using Depra.ObjectPooling.Runtime.Configuration.Impl;
 using Depra.ObjectPooling.Runtime.Extensions;
-using Depra.ObjectPooling.Runtime.Factories.Impl;
 using Depra.ObjectPooling.Runtime.PooledObjects.Impl;
 using Depra.ObjectPooling.Runtime.Pools.Impl;
 using NUnit.Framework;
@@ -26,11 +24,8 @@ namespace Depra.ObjectPooling.Tests.PlayMode
         public void SetUp()
         {
             _prefab = LoadPrefab();
-            var processor = new PrefabPooledObjectFactory<PooledGameObject>(_prefab);
-            var buffer = new InstanceBuffer<PooledGameObject>(DefaultCapacity);
-            var exceptionHandlingRule = new ExceptionThrowingRule();
-
-            _prefabPool = new PrefabPool<PooledGameObject>(Key, buffer, processor, exceptionHandlingRule);
+            var configuration = new PrefabPoolConfiguration<PooledGameObject>(_prefab, DefaultCapacity);
+            _prefabPool = new PrefabPool<PooledGameObject>(Key, configuration);
         }
 
         [TearDown]
@@ -62,7 +57,7 @@ namespace Depra.ObjectPooling.Tests.PlayMode
 
             yield return null;
 
-            _prefabPool.FreeObject(randomObject);
+            _prefabPool.ReleaseObject(randomObject);
 
             yield return null;
 

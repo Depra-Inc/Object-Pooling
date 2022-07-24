@@ -1,6 +1,6 @@
 ﻿namespace Depra.ObjectPooling.Runtime.Common
 {
-    public class Constants
+    public static class Constants
     {
         public const string FrameworkName = "Depra";
         public const string ModuleName = "Pooling";

@@ -1,9 +1,8 @@
 using System;
 using System.Linq;
-using Depra.ObjectPooling.Runtime.Buffers.Impl;
-using Depra.ObjectPooling.Runtime.Exceptions;
+using Depra.ObjectPooling.Runtime.Configuration.Impl;
 using Depra.ObjectPooling.Runtime.Extensions;
-using Depra.ObjectPooling.Runtime.Factories.Impl;
+using Depra.ObjectPooling.Runtime.Factories.Obj.Impl;
 using Depra.ObjectPooling.Runtime.Pools.Impl;
 using NUnit.Framework;
 
@@ -19,12 +18,10 @@ namespace Depra.ObjectPooling.Tests.Editor
         [SetUp]
         public void SetUp()
         {
-            var buffer = new InstanceBuffer<TestPooled>(DefaultCapacity);
-            var instanceProcessor = new CustomPooledObjectFactory<TestPooled>(CreatePooledObject,
-                null, null, null);
-            var exceptionHandlingRule = new ExceptionThrowingRule();
+            var configuration = new DefaultPoolConfiguration<TestPooled>(DefaultCapacity, 
+                CreatePooledObject, null, null, null);
 
-            _objectPool = new ObjectPool<TestPooled>(Key, buffer, instanceProcessor, exceptionHandlingRule);
+            _objectPool = new ObjectPool<TestPooled>(Key, configuration);
         }
 
         [TearDown]
@@ -55,7 +52,7 @@ namespace Depra.ObjectPooling.Tests.Editor
         }
 
         [Test]
-        public void Free_Object()
+        public void Release_Object()
         {
             const int count = 2;
             var collection = CreateCollectionOfPooledObjects(count);
@@ -64,7 +61,7 @@ namespace Depra.ObjectPooling.Tests.Editor
             _objectPool.AddFreeRange(collection);
             _objectPool.RequestObject();
             _objectPool.RequestObject();
-            _objectPool.FreeObject(lastObject);
+            _objectPool.ReleaseObject(lastObject);
 
             Assert.AreEqual(true, lastObject.Free);
             Assert.AreEqual(count - 1, _objectPool.CountActive);
@@ -108,7 +105,7 @@ namespace Depra.ObjectPooling.Tests.Editor
         }
 
         [Test]
-        public void Free_Objects_Range()
+        public void Release_Objects_Range()
         {
             const int count = 10;
 
@@ -118,7 +115,7 @@ namespace Depra.ObjectPooling.Tests.Editor
             _ = _objectPool.RequestRange(count / 2);
 
             var collectionForFree = collection.AsSpan()[..(count / 2)].ToArray();
-            _objectPool.FreeRange(collectionForFree);
+            _objectPool.ReleaseRange(collectionForFree);
 
             Assert.AreEqual(0, _objectPool.CountActive);
             Assert.AreEqual(count, _objectPool.CountAll);
