@@ -13,6 +13,9 @@ namespace Depra.ObjectPooling.Runtime.Pools.Impl
         private readonly IPoolContext<T> _context;
         private readonly IPooledInstanceFactory<T> _instanceFactory;
 
+        public override int CountActive => _context.ActiveInstances.Count;
+        public override int CountInactive => _context.PassiveInstances.Count;
+
         public override T RequestObject()
         {
             RequestObject(out var obj);
@@ -56,13 +59,11 @@ namespace Depra.ObjectPooling.Runtime.Pools.Impl
                 instance.Obj.OnPoolSleep();
                 _instanceFactory.DestroyInstance(ref instance);
             });
-            
-            CountAll = 0;
         }
 
         public void AddFreeObject(T obj)
         {
-            var instance = _instanceFactory.MakePassiveInstance(obj);
+            _instanceFactory.MakePassiveInstance(obj);
             OnFreeObjectAdded(obj);
         }
 

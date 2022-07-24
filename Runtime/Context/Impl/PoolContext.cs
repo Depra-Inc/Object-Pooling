@@ -32,11 +32,27 @@ namespace Depra.ObjectPooling.Runtime.Context.Impl
             instances.Dispose();
         }
 
-        public PoolContext(PoolBase<T> pool, int capacity)
+        public PoolContext(PoolBase<T> pool, BorrowStrategy borrowStrategy, int capacity)
         {
             Pool = pool;
-            ActiveInstances = new InstanceStack<T>(capacity);
-            PassiveInstances = new InstanceStack<T>(capacity);
+
+            switch (borrowStrategy)
+            {
+                case BorrowStrategy.LIFO:
+                    ActiveInstances = new InstanceStack<T>(capacity);
+                    PassiveInstances = new InstanceStack<T>(capacity);
+                    break;
+                case BorrowStrategy.FIFO:
+                    ActiveInstances = new InstanceQueue<T>(capacity);
+                    PassiveInstances = new InstanceQueue<T>(capacity);
+                    break;
+                case BorrowStrategy.Random:
+                    ActiveInstances = new InstanceBag<T>(capacity);
+                    PassiveInstances = new InstanceBag<T>(capacity);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(borrowStrategy), borrowStrategy, null);
+            }
         }
     }
 }

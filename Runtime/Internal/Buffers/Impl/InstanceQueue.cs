@@ -6,9 +6,9 @@ using Depra.ObjectPooling.Runtime.Pools.Structs;
 
 namespace Depra.ObjectPooling.Runtime.Internal.Buffers.Impl
 {
-    internal class InstanceStack<T> : IInstanceBuffer<T> where T : IPooled
+    internal class InstanceQueue<T> : IInstanceBuffer<T> where T : IPooled
     {
-        private readonly Stack<PooledInstance<T>> _instances;
+        private readonly Queue<PooledInstance<T>> _instances;
 
         public int Count => _instances.Count;
 
@@ -16,17 +16,17 @@ namespace Depra.ObjectPooling.Runtime.Internal.Buffers.Impl
         public bool Contains(ref PooledInstance<T> instance) => _instances.Contains(instance);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PushInstance(ref PooledInstance<T> instance) => _instances.Push(instance);
+        public void PushInstance(ref PooledInstance<T> instance) => _instances.Enqueue(instance);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PooledInstance<T> PopInstance() => _instances.Pop();
+        public PooledInstance<T> PopInstance() => _instances.Dequeue();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<PooledInstance<T>> GetAll() => _instances;
 
-        public InstanceStack(int capacity)
+        public InstanceQueue(int capacity)
         {
-            _instances = new Stack<PooledInstance<T>>(capacity);
+            _instances = new Queue<PooledInstance<T>>(capacity);
         }
 
         public void Dispose() => _instances.Clear();

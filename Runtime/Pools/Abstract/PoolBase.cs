@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Depra.ObjectPooling.Runtime.Pools.Abstract
 {
+    /// <summary>
+    /// Provides basic features of pool.
+    /// </summary>
     public abstract class PoolBase<T> : IPool, IDisposable where T : IPooled
     {
         private bool _disposed;
@@ -14,12 +17,12 @@ namespace Depra.ObjectPooling.Runtime.Pools.Abstract
 
         public Type BaseType { get; }
 
-        public int CountInactive { get; private set; }
+        public abstract int CountActive { get; }
+        
+        public abstract int CountInactive { get;}
 
-        public int CountAll { get; protected set; }
-
-        public int CountActive => CountAll - CountInactive;
-
+        public int CountAll => CountActive + CountInactive;
+        
         public abstract T RequestObject();
 
         public abstract void ReleaseObject(T obj);
@@ -48,27 +51,24 @@ namespace Depra.ObjectPooling.Runtime.Pools.Abstract
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void OnObjectReleased(T obj)
         {
-            CountInactive++;
             obj.OnPoolSleep();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void OnObjectReused(T obj)
         {
-            CountInactive--;
             obj.OnPoolReuse();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void OnObjectCreated(T obj)
         {
-            CountAll++;
             obj.OnPoolCreate(this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void OnFreeObjectAdded(T obj)
         {
-            CountAll++;
-            CountInactive++;
-            
             obj.OnPoolSleep();
         }
 
