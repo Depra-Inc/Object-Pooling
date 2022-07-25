@@ -2,7 +2,7 @@
 using Depra.ObjectPooling.Runtime.Context.Interfaces;
 using Depra.ObjectPooling.Runtime.Internal.Buffers.Impl;
 using Depra.ObjectPooling.Runtime.Internal.Buffers.Interfaces;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Abstract;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
 
@@ -10,10 +10,10 @@ namespace Depra.ObjectPooling.Runtime.Context.Impl
 {
     public class PoolContext<T> : IPoolContext<T> where T : IPooled
     {
-        public PoolBase<T> Pool { get; }
+        public PoolBase Pool { get; }
         
-        public IInstanceBuffer<T> ActiveInstances { get; }
-        public IInstanceBuffer<T> PassiveInstances { get; }
+        public IInstanceBuffer<T> ActiveInstances { get; private set; }
+        public IInstanceBuffer<T> PassiveInstances { get; private set; }
 
         public void Clear(Action<PooledInstance<T>> onClear)
         {
@@ -21,21 +21,14 @@ namespace Depra.ObjectPooling.Runtime.Context.Impl
             ClearCollection(PassiveInstances, onClear);
         }
 
-        private static void ClearCollection(IInstanceBuffer<T> instances, Action<PooledInstance<T>> onClear)
-        {
-            var allInstances = instances.GetAll();
-            foreach (var instance in allInstances)
-            {
-                onClear.Invoke(instance);
-            }
-
-            instances.Dispose();
-        }
-
-        public PoolContext(PoolBase<T> pool, BorrowStrategy borrowStrategy, int capacity)
+        public PoolContext(PoolBase pool, BorrowStrategy borrowStrategy, int capacity)
         {
             Pool = pool;
+            CreateBuffers(borrowStrategy, capacity);
+        }
 
+        private void CreateBuffers(BorrowStrategy borrowStrategy, int capacity)
+        {
             switch (borrowStrategy)
             {
                 case BorrowStrategy.LIFO:
@@ -53,6 +46,17 @@ namespace Depra.ObjectPooling.Runtime.Context.Impl
                 default:
                     throw new ArgumentOutOfRangeException(nameof(borrowStrategy), borrowStrategy, null);
             }
+        }
+        
+        private static void ClearCollection(IInstanceBuffer<T> instances, Action<PooledInstance<T>> onClear)
+        {
+            var allInstances = instances.GetAll();
+            foreach (var instance in allInstances)
+            {
+                onClear.Invoke(instance);
+            }
+
+            instances.Dispose();
         }
     }
 }

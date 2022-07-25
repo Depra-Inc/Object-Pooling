@@ -5,7 +5,7 @@ using Depra.ObjectPooling.Runtime.Factories.Instance.Impl;
 using Depra.ObjectPooling.Runtime.Factories.Instance.Interfaces;
 using Depra.ObjectPooling.Runtime.Factories.Obj.Interfaces;
 using Depra.ObjectPooling.Runtime.Internal.Buffers.Impl;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Abstract;
 
 namespace Depra.ObjectPooling.Runtime.Configuration.Impl
@@ -16,7 +16,7 @@ namespace Depra.ObjectPooling.Runtime.Configuration.Impl
         private readonly BorrowStrategy _borrowStrategy;
         private readonly IPooledObjectFactory<T> _objectFactory;
 
-        public IPoolContext<T> GetContext(PoolBase<T> pool)
+        public IPoolContext<T> GetContext(PoolBase pool)
         {
             var context = new PoolContext<T>(pool, _borrowStrategy, _capacity);
             return context;

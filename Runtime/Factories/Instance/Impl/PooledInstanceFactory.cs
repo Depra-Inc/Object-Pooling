@@ -4,7 +4,7 @@ using Depra.ObjectPooling.Runtime.Factories.Instance.Interfaces;
 using Depra.ObjectPooling.Runtime.Factories.Obj.Interfaces;
 using Depra.ObjectPooling.Runtime.Internal.Buffers.Interfaces;
 using Depra.ObjectPooling.Runtime.Internal.Helpers;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
 
 namespace Depra.ObjectPooling.Runtime.Factories.Instance.Impl

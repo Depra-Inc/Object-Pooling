@@ -2,8 +2,7 @@ using System;
 using System.Linq;
 using Depra.ObjectPooling.Runtime.Configuration.Impl;
 using Depra.ObjectPooling.Runtime.Extensions;
-using Depra.ObjectPooling.Runtime.Factories.Obj.Impl;
-using Depra.ObjectPooling.Runtime.Pools.Impl;
+using Depra.ObjectPooling.Runtime.Pools.Objects;
 using NUnit.Framework;
 
 namespace Depra.ObjectPooling.Tests.Editor
@@ -43,7 +42,7 @@ namespace Depra.ObjectPooling.Tests.Editor
         [Test]
         public void Request_Object()
         {
-            var obj = _objectPool.RequestObject();
+            var obj = _objectPool.Request();
 
             Assert.IsNotNull(obj);
             Assert.AreEqual(true, obj.Created);
@@ -59,9 +58,9 @@ namespace Depra.ObjectPooling.Tests.Editor
             var lastObject = collection.Last();
 
             _objectPool.AddFreeRange(collection);
-            _objectPool.RequestObject();
-            _objectPool.RequestObject();
-            _objectPool.ReleaseObject(lastObject);
+            _objectPool.Request();
+            _objectPool.Request();
+            _objectPool.Release(lastObject);
 
             Assert.AreEqual(true, lastObject.Free);
             Assert.AreEqual(count - 1, _objectPool.CountActive);
@@ -71,7 +70,7 @@ namespace Depra.ObjectPooling.Tests.Editor
         [Test]
         public void Clear()
         {
-            _objectPool.RequestObject();
+            _objectPool.Request();
 
             Assert.AreNotEqual(0, _objectPool.CountAll);
 

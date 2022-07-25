@@ -1,10 +1,9 @@
 ﻿using Depra.ObjectPooling.Runtime.Common;
-using Depra.ObjectPooling.Runtime.PooledObjects.Abstract;
-using Depra.ObjectPooling.Runtime.Pools.Abstract;
+using Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Abstract;
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 using UnityEngine;
 
-namespace Depra.ObjectPooling.Runtime.PooledObjects.Impl
+namespace Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Impl
 {
     public class PooledGameObjectWithChildren : MonoBehaviour
     {
@@ -33,7 +32,7 @@ namespace Depra.ObjectPooling.Runtime.PooledObjects.Impl
             }
             else
             {
-                _owner.FreeObject(this);
+                _owner.ReleasePooled(this);
             }
         }
 

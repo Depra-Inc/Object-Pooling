@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
-using Depra.ObjectPooling.Runtime.Pools.Impl;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
+using Depra.ObjectPooling.Runtime.Pools.Objects;
 
 namespace Depra.ObjectPooling.Runtime.Extensions
 {
@@ -10,7 +10,7 @@ namespace Depra.ObjectPooling.Runtime.Extensions
         {
             foreach (var item in collection)
             {
-                pool.AddFreeObject(item);
+                pool.AddInactive(item);
             }
         }
     }

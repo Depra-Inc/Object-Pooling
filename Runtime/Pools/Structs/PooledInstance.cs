@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 using UnityEngine;
 
@@ -33,7 +33,7 @@ namespace Depra.ObjectPooling.Runtime.Pools.Structs
 
         public void Dispose()
         {
-            _pool.FreeObject(Obj);
+            _pool.ReleasePooled(Obj);
         }
     }
 }

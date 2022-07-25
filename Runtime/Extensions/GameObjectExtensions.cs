@@ -1,5 +1,4 @@
-﻿using Depra.ObjectPooling.Runtime.PooledObjects.Impl;
-using Depra.ObjectPooling.Runtime.Pools.Impl;
+﻿using Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Impl;
 using UnityEngine;
 
 namespace Depra.ObjectPooling.Runtime.Extensions

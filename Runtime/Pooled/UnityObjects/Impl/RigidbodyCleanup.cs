@@ -1,8 +1,8 @@
 ﻿using Depra.ObjectPooling.Runtime.Common;
-using Depra.ObjectPooling.Runtime.PooledObjects.Abstract;
+using Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Abstract;
 using UnityEngine;
 
-namespace Depra.ObjectPooling.Runtime.PooledObjects.Impl
+namespace Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Impl
 {
     [RequireComponent(typeof(Rigidbody))]
     [AddComponentMenu(Constants.FrameworkPath + Constants.FrameworkName + "Rigidbody Cleanup")]

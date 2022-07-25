@@ -1,4 +1,4 @@
-﻿using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+﻿using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 
 namespace Depra.ObjectPooling.Tests.Editor

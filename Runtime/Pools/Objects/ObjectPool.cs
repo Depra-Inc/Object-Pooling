@@ -2,13 +2,13 @@
 using Depra.ObjectPooling.Runtime.Configuration.Interfaces;
 using Depra.ObjectPooling.Runtime.Context.Interfaces;
 using Depra.ObjectPooling.Runtime.Factories.Instance.Interfaces;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Abstract;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
 
-namespace Depra.ObjectPooling.Runtime.Pools.Impl
+namespace Depra.ObjectPooling.Runtime.Pools.Objects
 {
-    public class ObjectPool<T> : PoolBase<T> where T : IPooled
+    public class ObjectPool<T> : Pool<T> where T : IPooled
     {
         private readonly IPoolContext<T> _context;
         private readonly IPooledInstanceFactory<T> _instanceFactory;
@@ -16,13 +16,13 @@ namespace Depra.ObjectPooling.Runtime.Pools.Impl
         public override int CountActive => _context.ActiveInstances.Count;
         public override int CountInactive => _context.PassiveInstances.Count;
 
-        public override T RequestObject()
+        public override T Request()
         {
-            RequestObject(out var obj);
+            Request(out var obj);
             return obj;
         }
 
-        public PooledInstance<T> RequestObject(out T obj)
+        public PooledInstance<T> Request(out T obj)
         {
             var instance = _instanceFactory.MakeActiveInstance(out var reuse);
             obj = instance.Obj;
@@ -41,7 +41,7 @@ namespace Depra.ObjectPooling.Runtime.Pools.Impl
             return instance;
         }
 
-        public override void ReleaseObject(T obj)
+        public override void Release(T obj)
         {
             if (obj == null)
             {
@@ -61,7 +61,7 @@ namespace Depra.ObjectPooling.Runtime.Pools.Impl
             });
         }
 
-        public void AddFreeObject(T obj)
+        public void AddInactive(T obj)
         {
             _instanceFactory.MakePassiveInstance(obj);
             OnFreeObjectAdded(obj);

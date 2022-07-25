@@ -1,9 +1,8 @@
 ﻿using Depra.ObjectPooling.Runtime.Common;
-using Depra.ObjectPooling.Runtime.PooledObjects.Abstract;
-using Depra.ObjectPooling.Runtime.Pools.Abstract;
+using Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Abstract;
 using UnityEngine;
 
-namespace Depra.ObjectPooling.Runtime.PooledObjects.Impl
+namespace Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Impl
 {
     [RequireComponent(typeof(ParticleSystem))]
     [AddComponentMenu(Constants.FrameworkPath + Constants.FrameworkName + "Particle System Cleanup")]

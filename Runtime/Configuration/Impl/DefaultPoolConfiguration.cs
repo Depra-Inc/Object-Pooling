@@ -2,7 +2,7 @@
 using Depra.ObjectPooling.Runtime.Factories.Obj.Impl;
 using Depra.ObjectPooling.Runtime.Factories.Obj.Interfaces;
 using Depra.ObjectPooling.Runtime.Internal.Buffers.Impl;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 
 namespace Depra.ObjectPooling.Runtime.Configuration.Impl
 {

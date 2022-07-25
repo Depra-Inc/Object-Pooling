@@ -1,13 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 using Depra.ObjectPooling.Runtime.Configuration.Impl;
 using Depra.ObjectPooling.Runtime.Factories.Obj.Impl;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using Depra.ObjectPooling.Runtime.Pools.Structs;
 using UnityEngine;
 
-namespace Depra.ObjectPooling.Runtime.Pools.Impl
+namespace Depra.ObjectPooling.Runtime.Pools.Objects
 {
-    public class PrefabPool<T> : ObjectPool<T> where T : MonoBehaviour, IPooled
+    public class UnityObjectPool<T> : ObjectPool<T> where T : MonoBehaviour, IPooled
     {
         private readonly PrefabPooledObjectFactory<T> _pooledObjectFactory;
 
@@ -16,13 +16,13 @@ namespace Depra.ObjectPooling.Runtime.Pools.Impl
 
         public T RequestObject(SceneInstancingArgs args)
         {
-            var obj = RequestObject();
+            var obj = Request();
             PrepareObjectTransform(obj.transform, args);
 
             return obj;
         }
 
-        public PrefabPool(object key, PrefabPoolConfiguration<T> configuration) : base(key, configuration)
+        public UnityObjectPool(object key, PrefabPoolConfiguration<T> configuration) : base(key, configuration)
         {
         }
 

@@ -2,8 +2,8 @@ using System.Collections;
 using System.Linq;
 using Depra.ObjectPooling.Runtime.Configuration.Impl;
 using Depra.ObjectPooling.Runtime.Extensions;
-using Depra.ObjectPooling.Runtime.PooledObjects.Impl;
-using Depra.ObjectPooling.Runtime.Pools.Impl;
+using Depra.ObjectPooling.Runtime.Pooled.UnityObjects.Impl;
+using Depra.ObjectPooling.Runtime.Pools.Objects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -18,32 +18,32 @@ namespace Depra.ObjectPooling.Tests.PlayMode
         private const int DefaultCapacity = 10;
 
         private PooledGameObject _prefab;
-        private PrefabPool<PooledGameObject> _prefabPool;
+        private UnityObjectPool<PooledGameObject> _unityObjectPool;
 
         [SetUp]
         public void SetUp()
         {
             _prefab = LoadPrefab();
             var configuration = new PrefabPoolConfiguration<PooledGameObject>(_prefab, DefaultCapacity);
-            _prefabPool = new PrefabPool<PooledGameObject>(Key, configuration);
+            _unityObjectPool = new UnityObjectPool<PooledGameObject>(Key, configuration);
         }
 
         [TearDown]
         public void TearDown()
         {
-            _prefabPool.Dispose();
+            _unityObjectPool.Dispose();
             Resources.UnloadUnusedAssets();
         }
 
         [UnityTest]
         public IEnumerator Request_Object()
         {
-            var obj = _prefabPool.RequestObject();
+            var obj = _unityObjectPool.Request();
 
             yield return null;
 
             Assert.IsNotNull(obj);
-            Assert.AreEqual(1, _prefabPool.CountActive);
+            Assert.AreEqual(1, _unityObjectPool.CountActive);
         }
 
         [UnityTest]
@@ -51,19 +51,19 @@ namespace Depra.ObjectPooling.Tests.PlayMode
         {
             const int requestedCount = 5;
 
-            var objects = _prefabPool.RequestRange(requestedCount);
+            var objects = _unityObjectPool.RequestRange(requestedCount);
             var randomIndex = Random.Range(0, requestedCount);
             var randomObject = objects.ElementAt(randomIndex);
 
             yield return null;
 
-            _prefabPool.ReleaseObject(randomObject);
+            _unityObjectPool.Release((PooledGameObject)randomObject);
 
             yield return null;
 
-            Assert.AreEqual(requestedCount, _prefabPool.CountAll);
-            Assert.AreEqual(1, _prefabPool.CountInactive);
-            Assert.AreEqual(requestedCount - 1, _prefabPool.CountActive);
+            Assert.AreEqual(requestedCount, _unityObjectPool.CountAll);
+            Assert.AreEqual(1, _unityObjectPool.CountInactive);
+            Assert.AreEqual(requestedCount - 1, _unityObjectPool.CountActive);
         }
 
         private static PooledGameObject LoadPrefab() => Resources.Load<PooledGameObject>(PrefabPath);

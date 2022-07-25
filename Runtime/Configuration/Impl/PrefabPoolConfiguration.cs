@@ -1,6 +1,6 @@
 ﻿using Depra.ObjectPooling.Runtime.Factories.Obj.Impl;
 using Depra.ObjectPooling.Runtime.Internal.Buffers.Impl;
-using Depra.ObjectPooling.Runtime.PooledObjects.Interfaces;
+using Depra.ObjectPooling.Runtime.Pooled.Interfaces;
 using UnityEngine;
 
 namespace Depra.ObjectPooling.Runtime.Configuration.Impl

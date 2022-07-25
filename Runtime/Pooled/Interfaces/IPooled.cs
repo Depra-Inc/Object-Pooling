@@ -1,6 +1,6 @@
 using Depra.ObjectPooling.Runtime.Pools.Interfaces;
 
-namespace Depra.ObjectPooling.Runtime.PooledObjects.Interfaces
+namespace Depra.ObjectPooling.Runtime.Pooled.Interfaces
 {
     /// <summary>
     /// Classes that implement <see cref="IPooled"/> will receive calls from the <see cref="IPool"/>.
