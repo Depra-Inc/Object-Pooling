@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RootNamespace>Depra.ObjectPooling</RootNamespace>
+        <AssemblyName>Depra.ObjectPooling</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Application\Internal" />
+      <Folder Include="Application\Pools" />
+    </ItemGroup>
+
+</Project>
